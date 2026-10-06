@@ -1,0 +1,81 @@
+{
+  "name": "Rauthy",
+  "slug": "rauthy",
+  "type": "ct",
+  "updateable": true,
+  "privileged": false,
+  "architectures": [
+    "amd64",
+    "arm64"
+  ],
+  "interface_port": 8080,
+  "documentation": "https://sebadob.github.io/rauthy/",
+  "website": "https://sebadob.github.io/rauthy/",
+  "repository": "https://github.com/sebadob/rauthy",
+  "description": "Rust identity provider supporting OpenID Connect, OAuth 2, and passkeys. Native service with embedded Hiqlite storage; requires an HTTPS reverse proxy.",
+  "install_methods": [
+    {
+      "type": "default",
+      "script": "ct/rauthy.sh",
+      "config_path": "/etc/rauthy/config.toml",
+      "resources": {
+        "cpu": 2,
+        "ram": 1024,
+        "hdd": 4,
+        "os": "Debian",
+        "version": "13"
+      }
+    }
+  ],
+  "default_credentials": {
+    "username": "admin@localhost",
+    "password": null
+  },
+  "app_vars": [
+    {
+      "name": "var_rauthy_hostname",
+      "label": "Public HTTPS hostname",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "var_rauthy_proxy_cidrs",
+      "label": "Trusted proxy IPs/CIDRs (comma-separated)",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "var_rauthy_admin_email",
+      "label": "Initial administrator email",
+      "type": "text",
+      "default": "admin@localhost"
+    },
+    {
+      "name": "var_rauthy_version",
+      "label": "Rauthy version (blank for latest stable)",
+      "type": "text"
+    }
+  ],
+  "categories": [
+    6
+  ],
+  "date_created": "2026-10-06",
+  "platforms": [
+    "pve"
+  ],
+  "logo": "https://cdn.jsdelivr.net/gh/selfhst/icons@main/webp/rauthy.webp",
+  "notes": [
+    {
+      "type": "warning",
+      "text": "Experimental testing script. Requires a public DNS hostname and an existing HTTPS reverse proxy on port 443; proxy and certificates are not installed."
+    },
+    {
+      "type": "info",
+      "text": "Native service extracted from the official image. Debian arm64 and emulated amd64 installs/migrations passed; real AMD64 Proxmox testing is pending and real ARM64 host testing has not been performed."
+    },
+    {
+      "type": "info",
+      "text": "Initial administrator credentials are generated randomly in /root/rauthy.creds inside the LXC. The optional administrator email changes the initial username."
+    }
+  ]
+}
