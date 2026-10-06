@@ -4,10 +4,6 @@
   "type": "ct",
   "updateable": true,
   "privileged": false,
-  "architectures": [
-    "amd64",
-    "arm64"
-  ],
   "interface_port": 8080,
   "documentation": "https://sebadob.github.io/rauthy/",
   "website": "https://sebadob.github.io/rauthy/",
@@ -17,11 +13,11 @@
     {
       "type": "default",
       "script": "ct/rauthy.sh",
-      "config_path": "/etc/rauthy/config.toml",
+      "config_path": "/opt/rauthy_data/config.toml",
       "resources": {
-        "cpu": 2,
-        "ram": 1024,
-        "hdd": 4,
+        "cpu": 4,
+        "ram": 8192,
+        "hdd": 25,
         "os": "Debian",
         "version": "13"
       }
@@ -67,15 +63,15 @@
   "notes": [
     {
       "type": "warning",
-      "text": "Experimental testing script. Requires a public DNS hostname and an existing HTTPS reverse proxy on port 443; proxy and certificates are not installed."
+      "text": "Requires a public DNS hostname and a browser-trusted HTTPS reverse proxy on port 443. Configure the proxy before first login; TLS and proxy are external."
     },
     {
       "type": "info",
-      "text": "Native service extracted from the official image. Debian arm64 and emulated amd64 installs/migrations passed; real AMD64 Proxmox testing is pending and real ARM64 host testing has not been performed."
+      "text": "Builds native Rauthy from official release source with the archived upstream frontend. Defaults reserve resources for compilation. Real AMD64 Proxmox testing is pending; the source build on ARM64 is untested."
     },
     {
       "type": "info",
-      "text": "Initial administrator credentials are generated randomly in /root/rauthy.creds inside the LXC. The optional administrator email changes the initial username."
+      "text": "Initial administrator password is random and stored in the root-only /opt/rauthy_data/config.toml. Change it after first login, then remove bootstrap.password_plain."
     }
   ]
 }
