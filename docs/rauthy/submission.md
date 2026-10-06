@@ -2,30 +2,46 @@
 
 Repository: https://github.com/mcv19/rauthy-proxmox-community-scripts
 
-This repository is a fork of `community-scripts/DevScripts` so a pull request can retain upstream history and target `community-scripts/DevScripts:main` directly.
+The fork retains `community-scripts/DevScripts` history for a direct PR to its `main` branch.
 
 - `main`: upstream baseline.
-- `rauthy-testing`: installer, updater, metadata, documentation, and automated tests. Default branch for personal testing.
-- `feat/rauthy`: initial contribution candidate containing only `ct/rauthy.sh`, `install/rauthy-install.sh`, and `json/rauthy.json`. It remains an experimental candidate until the gates below are resolved.
+- `rauthy-testing`: application scripts, metadata, docs, and tests; the default branch for personal testing.
+- `feat/rauthy`: contribution candidate containing exactly `ct/rauthy.sh`, `install/rauthy-install.sh`, and `json/rauthy.json` relative to the upstream baseline.
 
-No upstream issue or PR has been opened. Testing and local changes can continue without notifying maintainers.
+No upstream issue or PR has been opened.
+
+## Convention alignment
+
+The source-build revision addresses the prototype's gaps against `AGENTS.md` and `.github/agents/pve-script-creator.agent.md`:
+
+| Requirement | Implementation |
+| --- | --- |
+| Native installation | Official release source tarball; no OCI extraction or container runtime |
+| Shared release/deployment helpers | `fetch_and_deploy_gh_release` in explicit `tarball` mode; `check_for_gh_release` |
+| Shared runtime helper | `setup_rust`, toolchain read from upstream `Cargo.toml` |
+| No custom Bash helpers | Only `update_script()` is defined; installer defines none |
+| Persistent state outside deployed source | `/opt/rauthy_data` contains config, keys, and Hiqlite data |
+| Shared backup/recovery | `create_backup` / `restore_backup`, store under `/opt` |
+| Password/input helpers | `random_password` and `prompt_input_required` |
+| Service/credential conventions | Runs as root in the unprivileged LXC; credentials in root-only config; no dedicated user, credential file, or initial daemon reload |
+| Package/build conventions | `apt`, no core packages in dependency list, `$STD` before package/build commands |
+| Metadata | Resources/config path match scripts; `app_vars` exported; ARM64 support not claimed |
+
+Python uses its standard library for validation only; no Python application, pip, or virtual environment is installed. Release source contains archived UI assets, so Node/WASM rebuilding is not needed. FIDO preparation follows upstream's release process when the tool is present.
+
+HTTPS follows the user's selected external-proxy workflow. The hostname and trusted proxy are required, and the documented access URL is HTTPS with a browser-trusted certificate. This choice is explicit in the PR description for maintainer review.
 
 ## Submission gates
 
-1. Complete the real AMD64 checklist in `docs/rauthy/amd64-proxmox-test.md` and record results using `docs/rauthy/test-report-template.md`. ARM64 host tests are optional for your setup; do not claim them.
-2. Review the current upstream `AGENTS.md`, `.github/agents/pve-script-creator.agent.md`, and PR template. The tested prototype **does not yet conform to all DevScripts conventions**:
-   - `AGENTS.md`: “ct/ and install/ scripts define exactly one function: update_script() in the CT script. Nothing else.” The prototype defines reusable extraction, config, health, and rollback helpers.
-   - Deployment is native, but the binary comes from an official OCI image via `skopeo`/`umoci`. Existing shared release helpers do not extract OCI images. Replace this with an approved shared helper/source build approach, or obtain a maintainer exception for the chosen prebuilt-binary approach.
-   - Full offline database/binary recovery currently uses custom tar backups/version bookkeeping, instead of the project's standard deployment/backup helpers. Recovery must keep database and binary versions together; a refactor must preserve that behavior.
-   - The prototype has a dedicated service user, a root-only initial credential file, Python-generated credentials/config, and an explicit initial daemon reload. Those differ from the current project instructions and must be revised or explicitly accepted before submission.
-   - The current dependency list uses `apt-get` and includes core packages; normalize it to current project conventions during that review.
-3. Verify eligibility and artifact policy with maintainers if necessary. On 2026-10-06, Rauthy had 1,362 stars, was created on 2023-07-01, was actively maintained, and release v0.37.0 exposed a source tarball URL but no uploaded standalone binary assets. State clearly that the installable prebuilt artifact is the official multi-architecture image. Do not describe it as an uploaded GitHub binary release.
-4. Apply agreed changes to both the testing and contribution branches, rerun tests, and recheck on your real Proxmox host if behavior changed.
-5. Fill the current upstream PR template. Report automated/container tests separately from real Proxmox tests. For AI disclosure: Codex, GPT-6 family, authored the prototype and tests and reviewed the implementation. The exact model variant/reasoning level was not exposed to this task; do not invent it. The attempted Claude implementation handoff did not execute; it contributed no implementation.
+1. Complete the real AMD64 checklist in `amd64-proxmox-test.md`, including compilation, LXC lifecycle, login/passkeys, and a real upgrade. Record results using `test-report-template.md`. Leave untested results unchecked.
+2. Recheck current upstream instructions and the three-file diff before submitting. Do not claim ARM64 source-build support based on the earlier image-extraction tests.
+3. Eligibility evidence from 2026-10-06: Rauthy had 1,362 GitHub stars, was created 2023-07-01, was actively maintained, and v0.37.0 published an official GitHub source-tarball URL. That release had no uploaded standalone binary assets; the new installer uses source.
+4. Fill the current PR template, separating isolated checks, disposable Debian tests, and actual Proxmox tests. Model disclosure must remain truthful: Codex, GPT-6 family, authored and reviewed the changes; exact variant/reasoning setting was not exposed to this task. Claude's attempted handoff did not execute or contribute implementation.
+5. Check the chosen external-proxy workflow with maintainers during review. It provides the required browser secure context; no local self-signed proxy is installed.
 
-## Open the PR after these gates pass
+## Submit after testing
 
-Review the final three-file diff and run this command when you choose to submit:
+Replace the pending results in `pr-description-draft.md` and review the final candidate. When you choose to submit:
 
 ```bash
 gh pr create \
@@ -36,4 +52,4 @@ gh pr create \
   --body-file docs/rauthy/pr-description-draft.md
 ```
 
-The draft description is on the testing branch. Replace placeholders and unresolved convention notes with the actual final implementation/results first. Do not check “tested thoroughly” or Proxmox/ARM64 boxes based only on the automated Docker harness.
+Do not mark "tested thoroughly" or the Proxmox/ARM64 boxes based only on isolated or Docker-hosted tests.

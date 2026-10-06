@@ -14,7 +14,7 @@
 
 | Check | Result (pass / fail / untested) | Notes |
 | --- | --- | --- |
-| LXC creation and installation | untested | |
+| LXC creation and native source compilation | untested | |
 | Custom hostname/proxy variables reach installer | untested | |
 | Service health and generated systemd unit | untested | |
 | HTTPS login and initial password change | untested | |
@@ -32,4 +32,4 @@ Include relevant redacted messages. Omit passwords, config encryption/Raft keys,
 
 ## Architecture scope
 
-This report covers real AMD64 Proxmox testing only. Separate automated Debian checks cover arm64 and emulated amd64; they do not establish real ARM64 host/platform support.
+This report covers real AMD64 Proxmox testing only. The new native source-build path on ARM64 is untested. Earlier arm64/emulated-amd64 image-binary tests apply only to the superseded prototype.
